@@ -1,0 +1,12 @@
+opendatasets
+scikit-learn
+numpy 
+pandas
+openai-agents
+langchain-groq
+crewai-tools
+litellm
+langchain 
+langchain_core 
+langchain_community 
+langgraph
