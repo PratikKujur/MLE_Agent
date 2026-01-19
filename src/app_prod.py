@@ -1,14 +1,6 @@
 import streamlit as st
 import os
-
-# Lazy import to handle missing dependencies gracefully
-get_eda = None
-import_error = None
-
-try:
-    from main import get_eda
-except ImportError as e:
-    import_error = str(e)
+from main import get_eda
 
 
 if "analysis_result" not in st.session_state:
@@ -21,12 +13,6 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 st.title("EDA_Agent 🤖🧠🇦🇮👾")
 st.header("Upload your dataset for EDA in .csv format")
-
-# Check if dependencies are available
-if import_error:
-    st.error(f"⚠️ Missing dependencies: {import_error}")
-    st.info("Make sure all required packages are installed using: pip install -r requirements.txt")
-    st.stop()
 
 uploaded_file = st.file_uploader(
     label="Upload your dataset for EDA in .csv format",
@@ -43,10 +29,13 @@ if uploaded_file is not None:
         
         st.info(f"Processing {uploaded_file.name}...")
         
-        # Call get_eda directly (returns dict)
+        # Call get_eda directly (returns dict, not requests.Response)
         try:
-            with st.spinner("🔄 Running EDA analysis..."):
-                result = get_eda(file_path=file_path)
+            result = get_eda(file_path=file_path)
+            
+            # Debug: Print the response structure
+            st.write("📋 Analysis Result:")
+            st.json(result)
             
             # Check for errors in the response
             if isinstance(result, dict) and result.get("error"):
@@ -60,15 +49,24 @@ if uploaded_file is not None:
         except Exception as e:
             st.session_state.error_message = f"Unexpected error: {str(e)}"
             st.session_state.analysis_result = None
-            st.error(st.session_state.error_message)
             import traceback
-            with st.expander("📋 Error Details"):
-                st.code(traceback.format_exc())
+            traceback.print_exc()
+        
+        st.rerun()
+        st.session_state.analysis_result = None
+        st.rerun()
 
 # Display results
+if st.session_state.error_message:
+    st.error(st.session_state.error_message)
+
 if st.session_state.analysis_result:
     result = st.session_state.analysis_result
-    st.success("✅ EDA Analysis Complete!")
+    
+    # Only show success if there's no error in the result
+    if not isinstance(result, dict) or not result.get("error"):
+        st.success("✅ EDA Analysis Complete!")
+    
     st.divider()
     
     col1, col2 = st.columns(2)

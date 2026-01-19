@@ -5,7 +5,6 @@ from Tasks import EDA_Tasks, State
 from Agents import EDA_Agents
 from sklearn.datasets import load_diabetes
 from langchain_groq import ChatGroq
-from IPython.display import Image
 import pandas as pd
 
 load_dotenv()
