@@ -1,20 +1,22 @@
 import os
 from dotenv import load_dotenv
 from langgraph.graph import StateGraph, START, END
-from Tasks import EDA_Tasks,State 
+from Tasks import EDA_Tasks, State
 from Agents import EDA_Agents
 from sklearn.datasets import load_diabetes
 from langchain_groq import ChatGroq
 from IPython.display import Image
 
 load_dotenv()
-eda_agents=EDA_Agents()
-eda_tasks=EDA_Tasks()
+# os.environ["LANGSMITH_API_KEY"] = os.getenv("LANGSMITH_API_KEY")
+# os.environ["LANGSMITH_TRACING"] = os.getenv("LANGSMITH_TRACING")
+# os.environ["LANGSMITH_ENDPOINT"]=os.getenv("LANGSMITH_ENDPOINT")
+# os.environ["LANGSMITH_PROJECT"]=os.getenv("LANGSMITH_PROJECT")
 
-llm = ChatGroq(
-            api_key=os.getenv("GROQ_API_KEY"),
-            model="llama-3.1-8b-instant"
-        )
+eda_agents = EDA_Agents()
+eda_tasks = EDA_Tasks()
+
+llm = ChatGroq(api_key=os.getenv("GROQ_API_KEY"), model="llama-3.1-8b-instant")
 
 
 llm_profiled_tools = llm.bind_tools(
@@ -32,6 +34,8 @@ llm_eda_tools = llm.bind_tools(
         eda_tasks.EDA_executer_feature_ranking,
     ]
 )
+
+
 def basic_tranformation(df):
     return df.head(5), df.columns.tolist()
 
@@ -61,10 +65,22 @@ workflow.add_node(
 
 workflow.add_node("Dataset_profiling_report", eda_agents.Dataset_profiling)
 workflow.add_node("EDA_Strategy_Generator", eda_agents.EDA_Strategy_Generator)
-workflow.add_node("EDA_executer_correlation", lambda state: eda_tasks.EDA_executer_correlation(df=df, state=state))
-workflow.add_node("EDA_executer_outlier_detection", lambda state: eda_tasks.EDA_executer_outlier_detection(df=df, state=state))
-workflow.add_node("EDA_executer_feature_ranking", lambda state: eda_tasks.EDA_executer_feature_ranking(df=df, state=state))
-workflow.add_node("EDA_executer_descriptive", lambda state: eda_tasks.EDA_executer_descriptive(df=df, state=state))
+workflow.add_node(
+    "EDA_executer_correlation",
+    lambda state: eda_tasks.EDA_executer_correlation(df=df, state=state),
+)
+workflow.add_node(
+    "EDA_executer_outlier_detection",
+    lambda state: eda_tasks.EDA_executer_outlier_detection(df=df, state=state),
+)
+workflow.add_node(
+    "EDA_executer_feature_ranking",
+    lambda state: eda_tasks.EDA_executer_feature_ranking(df=df, state=state),
+)
+workflow.add_node(
+    "EDA_executer_descriptive",
+    lambda state: eda_tasks.EDA_executer_descriptive(df=df, state=state),
+)
 
 workflow.add_node("EDA_Report", lambda state: eda_agents.EDA_Report(df_sample, state))
 
@@ -113,13 +129,10 @@ initial_state: State = {
 }
 
 
-Image(chain.get_graph().draw_mermaid_png()) 
+Image(chain.get_graph().draw_mermaid_png())
 
 result = chain.invoke(initial_state)
 print("Domain expert:", result["Domain_expert"], "\n")
 print("Domain profiler:", result["Dataset_profiler"], "\n")
 print("EDA strategy:", result["EDA_Resonner"], "\n")
 print("EDA_Report:", result["EDA_report_generator"])
-
-
-
