@@ -4,7 +4,7 @@ scikit-learn
 numpy 
 pandas
 openai-agents
-langchain-groq
+langchain-groq==0.2.1
 crewai-tools
 litellm
 langchain 
