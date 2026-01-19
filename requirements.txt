@@ -11,8 +11,7 @@ langchain-groq==0.3.6
 langgraph
 
 litellm
-crewai-tools
 
 fastapi
 streamlit
-openai-agents
+
