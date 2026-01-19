@@ -40,7 +40,6 @@ class EDA_Agents:
             else result
         }
 
-
     def Dataset_profiling(self,state: State) -> dict:
         return {
             "EDA_report_generator": self.llm.invoke(f"""
