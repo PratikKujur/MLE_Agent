@@ -10,3 +10,5 @@ langchain
 langchain_core 
 langchain_community 
 langgraph
+fastapi
+streamlit
