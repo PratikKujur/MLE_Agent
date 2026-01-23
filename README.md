@@ -214,6 +214,3 @@ Contributions are welcome! Please ensure:
 
 [Add your license here]
 
-## Support
-
-For issues or questions, please [open an issue](your-repo-url/issues) on GitHub.
